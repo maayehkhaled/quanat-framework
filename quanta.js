@@ -15435,167 +15435,132 @@ $.fn.dynamicTestSearch = function(id) {
     return target;
 }
 
-/* -- [ chart options ] -- */
-var options = {
-    segmentShowStroke: false,
-    percentageInnerCutout: 55,
-    animationSteps: 1,
-    legendTemplate: '<ul class=\'<%=name.toLowerCase()%>-legend right\'><% for (var i=0; i<segments.length; i++) {%><li><%if(segments[i].label && segments[i].value){%><span style=\'background-color:<%=segments[i].fillColor%>\'></span><%=segments[i].label%><%}%></li><%}%></ul>'
-};
+// /* -- [ chart options ] -- */
+// var options = {
+//     segmentShowStroke: false,
+//     percentageInnerCutout: 55,
+//     animationSteps: 1,
+//     legendTemplate: '<ul class=\'<%=name.toLowerCase()%>-legend right\'><% for (var i=0; i<segments.length; i++) {%><li><%if(segments[i].label && segments[i].value){%><span style=\'background-color:<%=segments[i].fillColor%>\'></span><%=segments[i].label%><%}%></li><%}%></ul>'
+// };
 
-/* -- [ draw legend for test and step charts ] -- */
-function drawLegend(chart, id) {
-    var helpers = Chart.helpers
-      , legendHolder = document.getElementById(id);
+// /* -- [ draw legend for test and step charts ] -- */
+// function drawLegend(chart, id) {
+//     var helpers = Chart.helpers
+//       , legendHolder = document.getElementById(id);
 
-    legendHolder.innerHTML = chart.generateLegend();
+//     legendHolder.innerHTML = chart.generateLegend();
 
-    helpers.each(legendHolder.firstChild.childNodes, function(legendNode, index) {
-        helpers.addEvent(legendNode, 'mouseover', function() {
-            var activeSegment = chart.segments[index];
-            activeSegment.save();
-            activeSegment.fillColor = activeSegment.highlightColor;
-            chart.showTooltip([activeSegment]);
-            activeSegment.restore();
-        });
-    });
+//     helpers.each(legendHolder.firstChild.childNodes, function(legendNode, index) {
+//         helpers.addEvent(legendNode, 'mouseover', function() {
+//             var activeSegment = chart.segments[index];
+//             activeSegment.save();
+//             activeSegment.fillColor = activeSegment.highlightColor;
+//             chart.showTooltip([activeSegment]);
+//             activeSegment.restore();
+//         });
+//     });
 
-    Chart.helpers.addEvent(legendHolder.firstChild, 'mouseout', function() {
-        chart.draw();
-    });
-    $('#' + id).after(legendHolder.firstChild);
-}
+//     Chart.helpers.addEvent(legendHolder.firstChild, 'mouseout', function() {
+//         chart.draw();
+//     });
+//     $('#' + id).after(legendHolder.firstChild);
+// }
+
+ google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawParentChart);
+
 
 /* -- [ parent chart ] -- */
 function drawParentChart() {
-    var data = [{
-        value: statusGroup.passParent,
-        color: '#00af00',
-        highlight: '#32bf32',
-        label: 'Pass'
-    }, {
-        value: statusGroup.failParent,
-        color: '#F7464A',
-        highlight: '#FF5A5E',
-        label: 'Fail'
-    }, {
-        value: statusGroup.fatalParent,
-        color: '#8b0000',
-        highlight: '#a23232',
-        label: 'Fatal'
-    }, {
-        value: statusGroup.errorParent,
-        color: '#ff6347',
-        highlight: '#ff826b',
-        label: 'Error'
-    }, {
-        value: statusGroup.warningParent,
-        color: '#FDB45C',
-        highlight: '#FFC870',
-        label: 'Warning'
-    }, {
-        value: statusGroup.skipParent,
-        color: '#1e90ff',
-        highlight: '#4aa6ff',
-        label: 'Skip'
-    }];
 
-    var ctx = $('#parent-analysis').get(0).getContext('2d');
-    testChart = new Chart(ctx).Doughnut(data, options);
-    drawLegend(testChart, 'parent-analysis');
+    var data = google.visualization.arrayToDataTable([
+        ['Test', 'Status'],
+        ['Pass',     statusGroup.passParent],
+        ['Fail',      statusGroup.failParent],
+        ['Fatal',  statusGroup.fatalParent],
+        ['Error', statusGroup.errorParent],
+        ['Warning', statusGroup.warningParent],
+        ['Skip',    statusGroup.skipParent]
+      ]);
+
+      var options = {
+         width: '800',
+        height: '200',
+        pieHole: 0.6,
+        legend: { position: 'right', alignment: 'start' },
+        is3D: true,
+pieStartAngle: 100,
+         colors: ['#00af00', '#F7464A', '#8b0000', '#ff6347', '#FDB45C','#1e90ff']
+
+        
+      };
+      var chart = new google.visualization.PieChart(document.getElementById('parent-analysis'));
+      chart.draw(data, options);
+
 }
-;drawParentChart();
+//;drawParentChart();
+ google.charts.load("current", {packages:["corechart"]});
+            google.charts.setOnLoadCallback(drawChildChart);
 
 /* -- [ children chart ] -- */
-(function drawChildChart() {
-    var data = [{
-        value: statusGroup.passChild,
-        color: '#00af00',
-        highlight: '#32bf32',
-        label: 'Pass'
-    }, {
-        value: statusGroup.failChild,
-        color: '#F7464A',
-        highlight: '#FF5A5E',
-        label: 'Fail'
-    }, {
-        value: statusGroup.fatalChild,
-        color: '#8b0000',
-        highlight: '#a23232',
-        label: 'Fatal'
-    }, {
-        value: statusGroup.errorChild,
-        color: '#ff6347',
-        highlight: '#ff826b',
-        label: 'Error'
-    }, {
-        value: statusGroup.warningChild,
-        color: '#FDB45C',
-        highlight: '#FFC870',
-        label: 'Warning'
-    }, {
-        value: statusGroup.skipChild,
-        color: '#1e90ff',
-        highlight: '#4aa6ff',
-        label: 'Skip'
-    }, {
-        value: statusGroup.infoChild,
-        color: '#46BFBD',
-        highlight: '#5AD3D1',
-        label: 'Info'
-    }];
+function drawChildChart() {
 
-    if ($('#child-analysis').length > 0) {
-        var ctx = $('#child-analysis').get(0).getContext('2d');
-        stepChart = new Chart(ctx).Doughnut(data, options);
-        drawLegend(stepChart, 'child-analysis');
-    }
+    var data = google.visualization.arrayToDataTable([
+        ['Test', 'Status'],
+        ['Pass',     statusGroup.passChild],
+        ['Fail',      statusGroup.failChild],
+        ['Fatal',  statusGroup.fatalChild],
+        ['Error', statusGroup.errorChild],
+        ['Warning', statusGroup.warningChild],
+        ['Skip',    statusGroup.skipChild],
+        ['Info',    statusGroup.infoChild],
+      ]);
+
+      var options = {
+         width: '800',
+         height: '200',
+         pieHole: 0.5,
+         is3D: true,
+          pieStartAngle: 100,      
+        colors: ['#00af00', '#F7464A', '#8b0000', '#ff6347', '#FDB45C','#1e90ff','#46BFBD']
+
+        
+      };
+      var chart = new google.visualization.PieChart(document.getElementById('child-analysis'));
+      chart.draw(data, options);
+    
+
 }
-)();
+ google.charts.load("current", {packages:["corechart"]});
+            google.charts.setOnLoadCallback(drawGrandChildChart);
+
 
 /* -- [ grand-children chart ] -- */
-(function drawChildChart() {
-    var data = [{
-        value: statusGroup.passGrandChild,
-        color: '#00af00',
-        highlight: '#32bf32',
-        label: 'Pass'
-    }, {
-        value: statusGroup.failGrandChild,
-        color: '#F7464A',
-        highlight: '#FF5A5E',
-        label: 'Fail'
-    }, {
-        value: statusGroup.fatalGrandChild,
-        color: '#8b0000',
-        highlight: '#a23232',
-        label: 'Fatal'
-    }, {
-        value: statusGroup.errorGrandChild,
-        color: '#ff6347',
-        highlight: '#ff826b',
-        label: 'Error'
-    }, {
-        value: statusGroup.warningGrandChild,
-        color: '#FDB45C',
-        highlight: '#FFC870',
-        label: 'Warning'
-    }, {
-        value: statusGroup.skipGrandChild,
-        color: '#1e90ff',
-        highlight: '#4aa6ff',
-        label: 'Skip'
-    }, {
-        value: statusGroup.infoGrandChild,
-        color: '#46BFBD',
-        highlight: '#5AD3D1',
-        label: 'Info'
-    }];
+function drawGrandChildChart() {
+        var data = google.visualization.arrayToDataTable([
+        ['Test', 'Status'],
+        ['Pass',     statusGroup.passGrandChild],
+        ['Fail',      statusGroup.failGrandChild],
+        ['Fatal',  statusGroup.fatalGrandChild],
+        ['Error', statusGroup.errorGrandChild],
+        ['Warning', statusGroup.warningGrandChild],
+        ['Skip',    statusGroup.skipGrandChild],
+        ['Info',    statusGroup.infoGrandChild],
+      ]);
 
-    if ($('#grandchild-analysis').length > 0) {
-        var ctx = $('#grandchild-analysis').get(0).getContext('2d');
-        stepChart = new Chart(ctx).Doughnut(data, options);
-        drawLegend(stepChart, 'grandchild-analysis');
-    }
+      var options = {
+         width: '800',
+        height: '200',
+        pieHole: 0.6,
+        is3D: true,
+         
+        colors: ['#00af00', '#F7464A', '#8b0000', '#ff6347', '#FDB45C','#1e90ff','#46BFBD']
+
+        
+      };
+      var chart = new google.visualization.PieChart(document.getElementById('grandchild-analysis'));
+      chart.draw(data, options);
+    
+    
 }
-)();
+
