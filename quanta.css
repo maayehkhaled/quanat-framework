@@ -449,7 +449,7 @@ nav ul i {
 /* -- [ chart ] -- */
 .chart-box {
 	display: block;
-	margin: 15px auto 120;
+	margin: 15px auto 0px;
 	text-align: center;
 }
 .doughnut-legend li span {
