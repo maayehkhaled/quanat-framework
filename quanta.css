@@ -427,6 +427,7 @@ nav ul i {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0 20px;
+    padding-bottom: 500px;
 }
 .ui-resizable {
 	position: relative;
